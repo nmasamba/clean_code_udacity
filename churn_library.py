@@ -43,10 +43,29 @@ def perform_eda(df):
     output:
             None
     '''
-    # Churn EDA
+    
+    # churn_plot
     df['Churn'] = df['Attrition_Flag'].apply(lambda val: 0 if val == "Existing Customer" else 1)
-    churn_fig = df['Churn'].hist()
-    plt.savefig('images/eda/churn.png')
+    df['Churn'].hist()
+    plt.savefig('images/eda/churn_hist.png')
+    
+    # customer_age_plot
+    df['Customer_Age'].hist()
+    plt.savefig('images/eda/customer_age_hist.png')
+    
+    # marital_status_plot
+    df.Marital_Status.value_counts('normalize').plot(kind='bar')
+    plt.savefig('images/eda/marital_status_bar.png', dpi='figure')
+    
+    # total_transactions_plot
+    sns.histplot(df['Total_Trans_Ct'], stat='density', kde=True)
+    plt.savefig('images/eda/total_transactions_hist.png')
+    
+    # heatmap
+    sns.heatmap(df.corr(), annot=False, cmap='Dark2_r', linewidths = 2)
+    plt.savefig('images/eda/heatmap.png')
+    
+    
 
 
 def encoder_helper(df, category_lst, response):
