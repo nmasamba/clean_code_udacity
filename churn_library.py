@@ -54,6 +54,7 @@ def perform_eda(df):
     plt.savefig('images/eda/customer_age_hist.png')
     
     # marital_status_plot
+    plt.figure(figsize=(20,10)) 
     df.Marital_Status.value_counts('normalize').plot(kind='bar')
     plt.savefig('images/eda/marital_status_bar.png', dpi='figure')
     
@@ -62,13 +63,14 @@ def perform_eda(df):
     plt.savefig('images/eda/total_transactions_hist.png')
     
     # heatmap
+    plt.figure(figsize=(20,10)) 
     sns.heatmap(df.corr(), annot=False, cmap='Dark2_r', linewidths = 2)
-    plt.savefig('images/eda/heatmap.png')
+    plt.savefig('images/eda/heatmap.png', dpi='figure')
     
     
 
 
-def encoder_helper(df, category_lst, response):
+def encoder_helper(df, category_lst, response='y'):
     '''
     helper function to turn each categorical column into a new column with
     propotion of churn for each category - associated with cell 15 from the notebook
@@ -81,8 +83,45 @@ def encoder_helper(df, category_lst, response):
     output:
             df: pandas dataframe with new columns for
     '''
-    pass
-
+    df[response] = df['Churn']
+    X = pd.DataFrame() # move to perform feature engineering?
+    
+    # gender encoded column
+    gender_lst = []
+    gender_groups = df.groupby('Gender').mean()['Churn']
+    for val in df['Gender']:
+        gender_lst.append(gender_groups.loc[val])
+    df['Gender_Churn'] = gender_lst
+    
+    #education encoded column
+    edu_lst = []
+    edu_groups = df.groupby('Education_Level').mean()['Churn']
+    for val in df['Education_Level']:
+        edu_lst.append(edu_groups.loc[val])
+    df['Education_Level_Churn'] = edu_lst
+    
+    #marital encoded column
+    marital_lst = []
+    marital_groups = df.groupby('Marital_Status').mean()['Churn']
+    for val in df['Marital_Status']:
+        marital_lst.append(marital_groups.loc[val])
+    df['Marital_Status_Churn'] = marital_lst
+    
+    #income encoded column
+    income_lst = []
+    income_groups = df.groupby('Income_Category').mean()['Churn']
+    for val in df['Income_Category']:
+        income_lst.append(income_groups.loc[val])
+    df['Income_Category_Churn'] = income_lst
+    
+    #card encoded column
+    card_lst = []
+    card_groups = df.groupby('Card_Category').mean()['Churn']
+    for val in df['Card_Category']:
+        card_lst.append(card_groups.loc[val])
+    df['Card_Category_Churn'] = card_lst
+    
+    return df
 
 def perform_feature_engineering(df, response):
     '''
