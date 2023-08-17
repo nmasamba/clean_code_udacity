@@ -85,41 +85,7 @@ def encoder_helper(df, category_lst, response='y'):
             response: target/y column
     '''
     
-    # gender encoded column
-    gender_lst = []
-    gender_groups = df.groupby('Gender').mean()['Churn']
-    for val in df['Gender']:
-        gender_lst.append(gender_groups.loc[val])
-    df['Gender_Churn'] = gender_lst
-    
-    #education encoded column
-    edu_lst = []
-    edu_groups = df.groupby('Education_Level').mean()['Churn']
-    for val in df['Education_Level']:
-        edu_lst.append(edu_groups.loc[val])
-    df['Education_Level_Churn'] = edu_lst
-    
-    #marital encoded column
-    marital_lst = []
-    marital_groups = df.groupby('Marital_Status').mean()['Churn']
-    for val in df['Marital_Status']:
-        marital_lst.append(marital_groups.loc[val])
-    df['Marital_Status_Churn'] = marital_lst
-    
-    #income encoded column
-    income_lst = []
-    income_groups = df.groupby('Income_Category').mean()['Churn']
-    for val in df['Income_Category']:
-        income_lst.append(income_groups.loc[val])
-    df['Income_Category_Churn'] = income_lst
-    
-    #card encoded column
-    card_lst = []
-    card_groups = df.groupby('Card_Category').mean()['Churn']
-    for val in df['Card_Category']:
-        card_lst.append(card_groups.loc[val])
-    df['Card_Category_Churn'] = card_lst
-    
+    # encode categorical columns list
     for categorical_col in category_lst:
         category_lst = []
         category_groups = df.groupby(categorical_col).mean()['Churn']
@@ -127,7 +93,7 @@ def encoder_helper(df, category_lst, response='y'):
             category_lst.append(category_groups.loc[val])
         df[categorical_col+'_Churn'] = category_lst
     
-    # add response and keep specific features
+    # get response series and keep specific features in the dataframe
     response = df['Churn']
     X = pd.DataFrame() # move to perform feature engineering?
     
@@ -206,5 +172,7 @@ def train_models(X_train, X_test, y_train, y_test):
 
 df = import_data("./data/bank_data.csv")
 perform_eda(df)
-X, y = encoder_helper(df, ['Gender_Churn', 'Education_Level_Churn', 'Marital_Status_Churn', 
-             'Income_Category_Churn', 'Card_Category_Churn'], response='y')
+X, y = encoder_helper(df, ['Gender', 'Education_Level', 'Marital_Status', 
+             'Income_Category', 'Card_Category'], response='y')
+print(X.info())
+print(y)
