@@ -43,7 +43,6 @@ def perform_eda(df):
     output:
             None
     '''
-    
     # churn_plot
     df['Churn'] = df['Attrition_Flag'].apply(lambda val: 0 if val == "Existing Customer" else 1)
     df['Churn'].hist()
@@ -84,8 +83,7 @@ def encoder_helper(df, category_lst, response='y'):
             X: pandas dataframe with new encoded features
             response: target/y column
     '''
-    
-    # encode categorical columns list
+    # encode categorical features based on categorical column list
     for categorical_col in category_lst:
         category_lst = []
         category_groups = df.groupby(categorical_col).mean()['Churn']
@@ -95,8 +93,7 @@ def encoder_helper(df, category_lst, response='y'):
     
     # get response series and keep specific features in the dataframe
     response = df['Churn']
-    X = pd.DataFrame() # move to perform feature engineering?
-    
+    X = pd.DataFrame()
     keep_cols = ['Customer_Age', 'Dependent_count', 'Months_on_book',
              'Total_Relationship_Count', 'Months_Inactive_12_mon',
              'Contacts_Count_12_mon', 'Credit_Limit', 'Total_Revolving_Bal',
@@ -120,6 +117,10 @@ def perform_feature_engineering(df, response):
               y_train: y training data
               y_test: y testing data
     '''
+    # train test split
+    X_train, X_test, y_train, y_test = train_test_split(df, response, test_size= 0.3, random_state=42)
+    return X_train, X_test, y_train, y_test
+    
 
 def classification_report_image(y_train,
                                 y_test,
@@ -174,5 +175,8 @@ df = import_data("./data/bank_data.csv")
 perform_eda(df)
 X, y = encoder_helper(df, ['Gender', 'Education_Level', 'Marital_Status', 
              'Income_Category', 'Card_Category'], response='y')
-print(X.info())
-print(y)
+X_train, X_test, y_train, y_test = perform_feature_engineering(X, y)
+print(X_train.info())
+print(X_test.info())
+print(y_train)
+print(y_test)
