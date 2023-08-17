@@ -81,10 +81,9 @@ def encoder_helper(df, category_lst, response='y'):
             response: string of response name [optional argument that could be used for naming variables or index y column]
 
     output:
-            df: pandas dataframe with new columns for
+            X: pandas dataframe with new encoded features
+            response: target/y column
     '''
-    df[response] = df['Churn']
-    X = pd.DataFrame() # move to perform feature engineering?
     
     # gender encoded column
     gender_lst = []
@@ -121,13 +120,33 @@ def encoder_helper(df, category_lst, response='y'):
         card_lst.append(card_groups.loc[val])
     df['Card_Category_Churn'] = card_lst
     
-    return df
+    for categorical_col in category_lst:
+        category_lst = []
+        category_groups = df.groupby(categorical_col).mean()['Churn']
+        for val in df[categorical_col]:
+            category_lst.append(category_groups.loc[val])
+        df[categorical_col+'_Churn'] = category_lst
+    
+    # add response and keep specific features
+    response = df['Churn']
+    X = pd.DataFrame() # move to perform feature engineering?
+    
+    keep_cols = ['Customer_Age', 'Dependent_count', 'Months_on_book',
+             'Total_Relationship_Count', 'Months_Inactive_12_mon',
+             'Contacts_Count_12_mon', 'Credit_Limit', 'Total_Revolving_Bal',
+             'Avg_Open_To_Buy', 'Total_Amt_Chng_Q4_Q1', 'Total_Trans_Amt',
+             'Total_Trans_Ct', 'Total_Ct_Chng_Q4_Q1', 'Avg_Utilization_Ratio',
+             'Gender_Churn', 'Education_Level_Churn', 'Marital_Status_Churn', 
+             'Income_Category_Churn', 'Card_Category_Churn']
+    X[keep_cols] = df[keep_cols]
+    
+    return X, response
 
 def perform_feature_engineering(df, response):
     '''
     input:
               df: pandas dataframe
-              response: string of response name [optional argument that could be used for naming variables or index y column]
+              response: target/y column
 
     output:
               X_train: X training data
@@ -187,3 +206,5 @@ def train_models(X_train, X_test, y_train, y_test):
 
 df = import_data("./data/bank_data.csv")
 perform_eda(df)
+X, y = encoder_helper(df, ['Gender_Churn', 'Education_Level_Churn', 'Marital_Status_Churn', 
+             'Income_Category_Churn', 'Card_Category_Churn'], response='y')
