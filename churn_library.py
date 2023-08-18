@@ -120,7 +120,46 @@ def perform_feature_engineering(df, response):
     # train test split
     X_train, X_test, y_train, y_test = train_test_split(df, response, test_size= 0.3, random_state=42)
     return X_train, X_test, y_train, y_test
+
+def perform_classification(X_train, X_test, y_train, y_test):
+    '''
+    input:    X_train: X training data
+              X_test: X testing data
+              y_train: y training data
+              y_test: y testing data
+    output:    
+            y_train,
+            y_test,
+            y_train_preds_lr,
+            y_train_preds_rf,
+            y_test_preds_lr,
+            y_test_preds_rf
+    '''
+    # Logistic Regression baseline
+    # Use a different solver if the default 'lbfgs' fails to converge
+    # Reference: https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+    lrc = LogisticRegression(solver='lbfgs', max_iter=3000)
+    lrc.fit(X_train, y_train)
     
+    # Random Forest classifier with Grid Search CV for hyperparameter tuning
+    rfc = RandomForestClassifier(random_state=42)
+    param_grid = { 
+        'n_estimators': [200, 500],
+        'max_features': ['auto', 'sqrt'],
+        'max_depth' : [4,5,100],
+        'criterion' :['gini', 'entropy']
+    }
+    cv_rfc = GridSearchCV(estimator=rfc, param_grid=param_grid, cv=5)
+    cv_rfc.fit(X_train, y_train)
+
+    # Gather classification results
+    y_train_preds_rf = cv_rfc.best_estimator_.predict(X_train)
+    y_test_preds_rf = cv_rfc.best_estimator_.predict(X_test)
+
+    y_train_preds_lr = lrc.predict(X_train)
+    y_test_preds_lr = lrc.predict(X_test)
+    
+    return y_train, y_test, y_train_preds_lr, y_train_preds_rf, y_test_preds_lr, y_test_preds_rf
 
 def classification_report_image(y_train,
                                 y_test,
@@ -176,7 +215,8 @@ perform_eda(df)
 X, y = encoder_helper(df, ['Gender', 'Education_Level', 'Marital_Status', 
              'Income_Category', 'Card_Category'], response='y')
 X_train, X_test, y_train, y_test = perform_feature_engineering(X, y)
-print(X_train.info())
-print(X_test.info())
+y_train, y_test, y_train_preds_lr, y_train_preds_rf, y_test_preds_lr, y_test_preds_rf = perform_classification(X_train, X_test, y_train, y_test)
+print(y_train_preds_lr)
+print(y_test_preds_rf)
 print(y_train)
 print(y_test)
