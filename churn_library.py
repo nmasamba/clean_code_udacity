@@ -181,7 +181,29 @@ def classification_report_image(y_train,
     output:
              None
     '''
-    pass
+    # RF scores
+    plt.clf()
+    plt.rc('figure', figsize=(5, 5))
+    
+    plt.text(0.01, 1.25, str('Random Forest Train'), {
+                 'fontsize': 10}, fontproperties='monospace')
+    plt.text(0.01, 0.05, str(classification_report(y_test, y_test_preds_rf)), {
+                 'fontsize': 10}, fontproperties='monospace')
+    plt.text(0.01, 0.6, str('Random Forest Test'), {
+                 'fontsize': 10}, fontproperties='monospace')
+    plt.text(0.01, 0.7, str(classification_report(y_train, y_train_preds_rf)), {
+                 'fontsize': 10}, fontproperties='monospace') 
+    plt.savefig('images/results/random_forest_clf_results.png')
+    
+    plt.text(0.01, 1.25, str('Logistic Regression Train'), {
+                 'fontsize': 10}, fontproperties='monospace')
+    plt.text(0.01, 0.05, str(classification_report(y_test, y_test_preds_lr)), {
+                 'fontsize': 10}, fontproperties='monospace')
+    plt.text(0.01, 0.6, str('Logistic Regression Test'), {
+                 'fontsize': 10}, fontproperties='monospace')
+    plt.text(0.01, 0.7, str(classification_report(y_train, y_train_preds_lr)), {
+                 'fontsize': 10}, fontproperties='monospace') 
+    plt.savefig('images/results/linear_reg_clf_results.png')
 
 
 def feature_importance_plot(model, X_data, output_pth):
@@ -216,7 +238,9 @@ X, y = encoder_helper(df, ['Gender', 'Education_Level', 'Marital_Status',
              'Income_Category', 'Card_Category'], response='y')
 X_train, X_test, y_train, y_test = perform_feature_engineering(X, y)
 y_train, y_test, y_train_preds_lr, y_train_preds_rf, y_test_preds_lr, y_test_preds_rf = perform_classification(X_train, X_test, y_train, y_test)
-print(y_train_preds_lr)
-print(y_test_preds_rf)
-print(y_train)
-print(y_test)
+classification_report_image(y_train,
+                                y_test,
+                                y_train_preds_lr,
+                                y_train_preds_rf,
+                                y_test_preds_lr,
+                                y_test_preds_rf)
