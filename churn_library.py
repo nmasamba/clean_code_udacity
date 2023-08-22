@@ -151,15 +151,29 @@ def perform_classification(X_train, X_test, y_train, y_test):
     }
     cv_rfc = GridSearchCV(estimator=rfc, param_grid=param_grid, cv=5)
     cv_rfc.fit(X_train, y_train)
+    
+    # save models
+    rf_model = joblib.dump(cv_rfc.best_estimator_, './models/rfc_model.pkl')
+    lr_model = joblib.dump(lrc, './models/logistic_model.pkl')
+    
+    # plot ROC curves
+    plt.figure(figsize=(15, 8))
+    ax = plt.gca()
+    rfc_disp = plot_roc_curve(rfc_model, X_test, y_test, ax=ax, alpha=0.8)
+    lrc_plot = plot_roc_curve(lr_model, X_test, y_test)
+    lrc_plot.plot(ax=ax, alpha=0.8)
+    plt.savefig('images/results/roc_curve.png')
 
-    # Gather classification results
+    # gather classification results
     y_train_preds_rf = cv_rfc.best_estimator_.predict(X_train)
     y_test_preds_rf = cv_rfc.best_estimator_.predict(X_test)
-
     y_train_preds_lr = lrc.predict(X_train)
     y_test_preds_lr = lrc.predict(X_test)
     
-    return y_train, y_test, y_train_preds_lr, y_train_preds_rf, y_test_preds_lr, y_test_preds_rf
+    return y_train, y_test, y_train_preds_lr, y_train_preds_rf, y_test_preds_lr, y_test_preds_rf, rf_model_obj, lr_model_obj
+
+def save_classification_model():
+    pass
 
 def classification_report_image(y_train,
                                 y_test,
@@ -193,8 +207,10 @@ def classification_report_image(y_train,
                  'fontsize': 10}, fontproperties='monospace')
     plt.text(0.01, 0.7, str(classification_report(y_train, y_train_preds_rf)), {
                  'fontsize': 10}, fontproperties='monospace') 
-    plt.savefig('images/results/random_forest_clf_results.png')
+    plt.savefig('images/results/random_forest_clf_results.png', dpi='figure')
     
+    plt.clf()
+    plt.rc('figure', figsize=(5, 5))
     plt.text(0.01, 1.25, str('Logistic Regression Train'), {
                  'fontsize': 10}, fontproperties='monospace')
     plt.text(0.01, 0.05, str(classification_report(y_test, y_test_preds_lr)), {
@@ -203,10 +219,10 @@ def classification_report_image(y_train,
                  'fontsize': 10}, fontproperties='monospace')
     plt.text(0.01, 0.7, str(classification_report(y_train, y_train_preds_lr)), {
                  'fontsize': 10}, fontproperties='monospace') 
-    plt.savefig('images/results/linear_reg_clf_results.png')
+    plt.savefig('images/results/linear_reg_clf_results.png', dpi='figure')
 
 
-def feature_importance_plot(model, X_data, output_pth):
+def feature_importance_plot(model, X_data, y_data, output_pth):
     '''
     creates and stores the feature importances in pth
     input:
@@ -217,8 +233,21 @@ def feature_importance_plot(model, X_data, output_pth):
     output:
              None
     '''
-    pass
-
+    # load model
+    model = joblib.load(model)
+    
+    # plot ROC curve
+    ax = plt.gca()
+    roc_plot = plot_roc_curve(model, X_data, y_data, ax=ax, alpha=0.8)
+    plt.savefig('images/results/roc_curve.png')
+    
+    # plot feature importances
+    explainer = shap.TreeExplainer(cv_rfc.best_estimator_)
+    shap_values = explainer.shap_values(X_test)
+    shap.summary_plot(shap_values, X_test, plot_type="bar")
+    plt.savefig()
+    
+    
 def train_models(X_train, X_test, y_train, y_test):
     '''
     train, store model results: images + scores, and store models
@@ -237,7 +266,7 @@ perform_eda(df)
 X, y = encoder_helper(df, ['Gender', 'Education_Level', 'Marital_Status', 
              'Income_Category', 'Card_Category'], response='y')
 X_train, X_test, y_train, y_test = perform_feature_engineering(X, y)
-y_train, y_test, y_train_preds_lr, y_train_preds_rf, y_test_preds_lr, y_test_preds_rf = perform_classification(X_train, X_test, y_train, y_test)
+y_train, y_test, y_train_preds_lr, y_train_preds_rf, y_test_preds_lr, y_test_preds_rf, saved_model_rf, saved_model_lr = perform_classification(X_train, X_test, y_train, y_test)
 classification_report_image(y_train,
                                 y_test,
                                 y_train_preds_lr,
