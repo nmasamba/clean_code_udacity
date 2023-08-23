@@ -121,7 +121,7 @@ def perform_feature_engineering(df, response):
     X_train, X_test, y_train, y_test = train_test_split(df, response, test_size= 0.3, random_state=42)
     return X_train, X_test, y_train, y_test
 
-def perform_classification(X_train, X_test, y_train, y_test):
+def train_models(X_train, X_test, y_train, y_test):
     '''
     input:    X_train: X training data
               X_test: X testing data
@@ -133,7 +133,9 @@ def perform_classification(X_train, X_test, y_train, y_test):
             y_train_preds_lr,
             y_train_preds_rf,
             y_test_preds_lr,
-            y_test_preds_rf
+            y_test_preds_rf,
+            rf_model_obj,
+            lr_model_obj
     '''
     # Logistic Regression baseline
     # Use a different solver if the default 'lbfgs' fails to converge
@@ -172,8 +174,6 @@ def perform_classification(X_train, X_test, y_train, y_test):
     
     return y_train, y_test, y_train_preds_lr, y_train_preds_rf, y_test_preds_lr, y_test_preds_rf, rf_model_obj, lr_model_obj
 
-def save_classification_model():
-    pass
 
 def classification_report_image(y_train,
                                 y_test,
@@ -222,7 +222,7 @@ def classification_report_image(y_train,
     plt.savefig('images/results/linear_reg_clf_results.png', dpi='figure')
 
 
-def feature_importance_plot(model, X_data, y_data, output_pth):
+def feature_importance_plot(model, X_data, output_pth):
     '''
     creates and stores the feature importances in pth
     input:
@@ -236,40 +236,25 @@ def feature_importance_plot(model, X_data, y_data, output_pth):
     # load model
     model = joblib.load(model)
     
-    # plot ROC curve
-    ax = plt.gca()
-    roc_plot = plot_roc_curve(model, X_data, y_data, ax=ax, alpha=0.8)
-    plt.savefig('images/results/roc_curve.png')
-    
     # plot feature importances
-    explainer = shap.TreeExplainer(cv_rfc.best_estimator_)
-    shap_values = explainer.shap_values(X_test)
-    shap.summary_plot(shap_values, X_test, plot_type="bar")
-    plt.savefig()
+    explainer = shap.TreeExplainer(model.best_estimator_)
+    shap_values = explainer.shap_values(X_data)
+    shap.summary_plot(shap_values, X_data, plot_type="bar")
+    plt.savefig(output_pth)
     
     
-def train_models(X_train, X_test, y_train, y_test):
-    '''
-    train, store model results: images + scores, and store models
-    input:
-              X_train: X training data
-              X_test: X testing data
-              y_train: y training data
-              y_test: y testing data
-    output:
-              None
-    '''
-    pass
+    
 
 df = import_data("./data/bank_data.csv")
 perform_eda(df)
 X, y = encoder_helper(df, ['Gender', 'Education_Level', 'Marital_Status', 
              'Income_Category', 'Card_Category'], response='y')
 X_train, X_test, y_train, y_test = perform_feature_engineering(X, y)
-y_train, y_test, y_train_preds_lr, y_train_preds_rf, y_test_preds_lr, y_test_preds_rf, saved_model_rf, saved_model_lr = perform_classification(X_train, X_test, y_train, y_test)
+y_train, y_test, y_train_preds_lr, y_train_preds_rf, y_test_preds_lr, y_test_preds_rf, saved_model_rf, saved_model_lr = train_models(X_train, X_test, y_train, y_test)
 classification_report_image(y_train,
                                 y_test,
                                 y_train_preds_lr,
                                 y_train_preds_rf,
                                 y_test_preds_lr,
                                 y_test_preds_rf)
+feature_importance_plot(saved_model_rf, X_test, output_pth='images/results/feat_importances.png')
