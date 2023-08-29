@@ -2,7 +2,11 @@
 '''
 Author: Nyasha Masamba
 Date: 2nd August 2023
-Purpose of program: End-to-end script for predicting customer churn with data import, EDA, feature engineering and model training functions.
+
+Purpose of program
+-------------------
+End-to-end script for predicting customer churn.
+Includes data import, EDA, feature engineering and model training functions.
 '''
 
 
@@ -52,18 +56,16 @@ def perform_eda(df):
     sns.heatmap(df.corr(), annot=False, cmap='Dark2_r', linewidths=2)
     plt.savefig('images/eda/heatmap.png', dpi='figure')
 
-    return
-
 
 def encoder_helper(df, category_lst, response='y'):
     '''
-    helper function to turn each categorical column into a new column with
-    propotion of churn for each category - associated with cell 15 from the notebook
+    Helper function to turn each categorical column into a new column 
+    representing propotion of churn for each category.
 
     input:
             df: pandas dataframe
             category_lst: list of columns that contain categorical features
-            response: string of response name [optional argument that could be used for naming variables or index y column]
+            response: string of response name (optional)
 
     output:
             X: pandas dataframe with new encoded features
@@ -130,8 +132,6 @@ def train_models(X_train, X_test, y_train, y_test):
               y_train: y training data
               y_test: y testing data
     output:
-            y_train: training response values
-            y_test:  test response values
             y_train_preds_lr: training predictions from logistic regression
             y_train_preds_rf: training predictions from random forest
             y_test_preds_lr: test predictions from logistic regression
@@ -188,7 +188,7 @@ def train_models(X_train, X_test, y_train, y_test):
     y_train_preds_lr = lrc.predict(X_train)
     y_test_preds_lr = lrc.predict(X_test)
 
-    return y_train, y_test, y_train_preds_lr, y_train_preds_rf, y_test_preds_lr, y_test_preds_rf, rf_model_path, lr_model_path
+    return y_train_preds_lr, y_train_preds_rf, y_test_preds_lr, y_test_preds_rf, rf_model_path, lr_model_path
 
 
 def classification_report_image(y_train,
@@ -243,8 +243,6 @@ def classification_report_image(y_train,
             'fontsize': 10}, fontproperties='monospace')
     plt.savefig('images/results/linear_reg_clf_results.png', dpi='figure')
 
-    return
-
 
 def feature_importance_plot(model, X_data, output_pth):
     '''
@@ -263,10 +261,8 @@ def feature_importance_plot(model, X_data, output_pth):
     # plot feature importances
     explainer = shap.TreeExplainer(model)
     shap_values = explainer.shap_values(X_data)
-    shap.summary_plot(shap_values, X_data, plot_type="bar")
+    shap.summary_plot(shap_values, X_data, plot_type="bar", show=False)
     plt.savefig(output_pth)
-
-    return
 
 
 if __name__ == '__main__':
@@ -275,11 +271,9 @@ if __name__ == '__main__':
     import shap
     import joblib
     import pandas as pd
-    import numpy as np
     import matplotlib.pyplot as plt
     import seaborn as sns
     sns.set()
-    from sklearn.preprocessing import normalize
     from sklearn.model_selection import train_test_split
     from sklearn.linear_model import LogisticRegression
     from sklearn.ensemble import RandomForestClassifier
@@ -289,20 +283,21 @@ if __name__ == '__main__':
     os.environ['QT_QPA_PLATFORM'] = 'offscreen'
 
     # end-to-end churn model
-    df = import_data("./data/bank_data.csv")
-    perform_eda(df)
-    X, y = encoder_helper(df, ['Gender', 'Education_Level', 'Marital_Status',
+    bank_data = import_data("./data/bank_data.csv")
+    perform_eda(bank_data)
+    X, y = encoder_helper(bank_data, ['Gender', 'Education_Level', 'Marital_Status',
                                'Income_Category', 'Card_Category'], response='y')
-    X_train, X_test, y_train, y_test = perform_feature_engineering(X, y)
-    y_train, y_test, y_train_preds_lr, y_train_preds_rf, y_test_preds_lr, y_test_preds_rf, saved_model_rf, saved_model_lr = train_models(
-        X_train, X_test, y_train, y_test)
-    classification_report_image(y_train,
-                                y_test,
-                                y_train_preds_lr,
-                                y_train_preds_rf,
-                                y_test_preds_lr,
-                                y_test_preds_rf)
+    X_train_set, X_test_set, y_train_set, y_test_set = perform_feature_engineering(X, y)
+    
+    y_train_preds_lr_set, y_train_preds_rf_set, y_test_preds_lr_set, y_test_preds_rf_set, saved_rf, saved_lr = train_models(X_train_set, X_test_set, y_train_set, y_test_set)
+    
+    classification_report_image(y_train_set,
+                                y_test_set,
+                                y_train_preds_lr_set,
+                                y_train_preds_rf_set,
+                                y_test_preds_lr_set,
+                                y_test_preds_rf_set)
     feature_importance_plot(
-        saved_model_rf,
-        X_test,
+        saved_rf,
+        X_test_set,
         output_pth='images/results/feat_importances.png')
