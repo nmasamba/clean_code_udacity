@@ -59,7 +59,7 @@ def perform_eda(df):
 
 def encoder_helper(df, category_lst, response='y'):
     '''
-    Helper function to turn each categorical column into a new column 
+    Helper function to turn each categorical column into a new column
     representing propotion of churn for each category.
 
     input:
@@ -286,11 +286,13 @@ if __name__ == '__main__':
     bank_data = import_data("./data/bank_data.csv")
     perform_eda(bank_data)
     X, y = encoder_helper(bank_data, ['Gender', 'Education_Level', 'Marital_Status',
-                               'Income_Category', 'Card_Category'], response='y')
-    X_train_set, X_test_set, y_train_set, y_test_set = perform_feature_engineering(X, y)
-    
-    y_train_preds_lr_set, y_train_preds_rf_set, y_test_preds_lr_set, y_test_preds_rf_set, saved_rf, saved_lr = train_models(X_train_set, X_test_set, y_train_set, y_test_set)
-    
+                                      'Income_Category', 'Card_Category'], response='y')
+    X_train_set, X_test_set, y_train_set, y_test_set = perform_feature_engineering(
+        X, y)
+
+    y_train_preds_lr_set, y_train_preds_rf_set, y_test_preds_lr_set, y_test_preds_rf_set, saved_rf, saved_lr = train_models(
+        X_train_set, X_test_set, y_train_set, y_test_set)
+
     classification_report_image(y_train_set,
                                 y_test_set,
                                 y_train_preds_lr_set,
