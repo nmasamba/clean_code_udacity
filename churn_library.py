@@ -19,8 +19,12 @@ def import_data(pth):
     output:
             df: pandas dataframe
     '''
-    df = pd.read_csv(pth)
-    return df
+    try:
+        df = pd.read_csv(pth)
+        return df
+    except FileNotFoundError:
+        print("Thank you for providing a file path. However, that file was not found.")
+        return "Thank you for providing a file path. However, that file was not found."
 
 
 def perform_eda(df):
@@ -283,7 +287,7 @@ if __name__ == '__main__':
     os.environ['QT_QPA_PLATFORM'] = 'offscreen'
 
     # end-to-end churn model
-    bank_data = import_data("./data/bank_data.csv")
+    bank_data = import_data('something')
     perform_eda(bank_data)
     X, y = encoder_helper(bank_data, ['Gender', 'Education_Level', 'Marital_Status',
                                       'Income_Category', 'Card_Category'], response='y')
