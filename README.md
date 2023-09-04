@@ -3,7 +3,9 @@
 - Project **Predict Customer Churn** of ML DevOps Engineer Nanodegree Udacity
 
 ## Project Description
-The project involves writing clean code for churn prediction. At its core is **churn_library.py**, an end-to-end script for predicting customer churn with data import, EDA, feature engineering and model training functions. Every function in this script is fully tested and errors are logged in the **churn_script_logging_and_tests.py** script.
+The project involves writing clean code for churn prediction. At its core is **churn_library.py**, an end-to-end script for predicting customer churn with data import, EDA, feature engineering and model training functions.
+
+To test the main functions in churn_library run: **churn_script_logging_and_tests.py**
 
 ## Files and data description
 Top level view
@@ -33,7 +35,7 @@ conda activate <env_name> (to deactivate: conda deactivate)
 3. Install pip in the new virtual environment:
 conda install pip
 
-4. Use pip to install the required packages for running the project:
+4. Use pip to install **dependencies**:
 pip install -r requirements_py3.8.txt
 
 5. Open the project files in Jupyter Notebook. For best results, install ipykernel so that the new virtual environment with the required packages can be accessed directly from the notebook:
