@@ -9,6 +9,21 @@ End-to-end script for predicting customer churn.
 Includes data import, EDA, feature engineering and model training functions.
 '''
 
+# import libraries
+import shap
+import joblib
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+sns.set()
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import GridSearchCV
+from sklearn.metrics import plot_roc_curve, classification_report
+import os
+os.environ['QT_QPA_PLATFORM'] = 'offscreen'
+
 
 def import_data(pth):
     '''
@@ -19,13 +34,8 @@ def import_data(pth):
     output:
             df: pandas dataframe
     '''
-    try:
-        df = pd.read_csv(pth)
-        return df
-    except FileNotFoundError:
-        print("Thank you for providing a file path. However, that file was not found.")
-        return "Thank you for providing a file path. However, that file was not found."
-
+    df = pd.read_csv(pth)
+    return df
 
 def perform_eda(df):
     '''
@@ -61,7 +71,7 @@ def perform_eda(df):
     plt.savefig('images/eda/heatmap.png', dpi='figure')
 
 
-def encoder_helper(df, category_lst, response='y'):
+def encoder_helper(df, category_lst, response='Churn'):
     '''
     Helper function to turn each categorical column into a new column
     representing propotion of churn for each category.
@@ -72,8 +82,8 @@ def encoder_helper(df, category_lst, response='y'):
             response: string of response name (optional)
 
     output:
-            X: pandas dataframe with new encoded features
-            response: target/y column
+            X_df: pandas dataframe with new encoded features
+            target: target/y column
     '''
     # encode categorical features based on categorical column list
     for categorical_col in category_lst:
@@ -84,8 +94,8 @@ def encoder_helper(df, category_lst, response='y'):
         df[categorical_col + '_Churn'] = category_lst
 
     # get response series and keep specific features in the dataframe
-    response = df['Churn']
-    X = pd.DataFrame()
+    target = df[response]
+    X_df = pd.DataFrame()
     keep_cols = [
         'Customer_Age',
         'Dependent_count',
@@ -106,9 +116,9 @@ def encoder_helper(df, category_lst, response='y'):
         'Marital_Status_Churn',
         'Income_Category_Churn',
         'Card_Category_Churn']
-    X[keep_cols] = df[keep_cols]
+    X_df[keep_cols] = df[keep_cols]
 
-    return X, response
+    return X_df, target
 
 
 def perform_feature_engineering(df, response):
@@ -269,41 +279,24 @@ def feature_importance_plot(model, X_data, output_pth):
     plt.savefig(output_pth)
 
 
-if __name__ == '__main__':
+# end-to-end churn model
+bank_data = import_data("./data/bank_data.csv")
+perform_eda(bank_data)
+X, y = encoder_helper(bank_data, ['Gender', 'Education_Level', 'Marital_Status',
+                                  'Income_Category', 'Card_Category'], 'Churn')
+X_train_set, X_test_set, y_train_set, y_test_set = perform_feature_engineering(
+    X, y)
 
-    # import libraries
-    import shap
-    import joblib
-    import pandas as pd
-    import matplotlib.pyplot as plt
-    import seaborn as sns
-    sns.set()
-    from sklearn.model_selection import train_test_split
-    from sklearn.linear_model import LogisticRegression
-    from sklearn.ensemble import RandomForestClassifier
-    from sklearn.model_selection import GridSearchCV
-    from sklearn.metrics import plot_roc_curve, classification_report
-    import os
-    os.environ['QT_QPA_PLATFORM'] = 'offscreen'
+y_train_preds_lr_set, y_train_preds_rf_set, y_test_preds_lr_set, y_test_preds_rf_set, saved_rf, saved_lr = train_models(
+    X_train_set, X_test_set, y_train_set, y_test_set)
 
-    # end-to-end churn model
-    bank_data = import_data('something')
-    perform_eda(bank_data)
-    X, y = encoder_helper(bank_data, ['Gender', 'Education_Level', 'Marital_Status',
-                                      'Income_Category', 'Card_Category'], response='y')
-    X_train_set, X_test_set, y_train_set, y_test_set = perform_feature_engineering(
-        X, y)
-
-    y_train_preds_lr_set, y_train_preds_rf_set, y_test_preds_lr_set, y_test_preds_rf_set, saved_rf, saved_lr = train_models(
-        X_train_set, X_test_set, y_train_set, y_test_set)
-
-    classification_report_image(y_train_set,
-                                y_test_set,
-                                y_train_preds_lr_set,
-                                y_train_preds_rf_set,
-                                y_test_preds_lr_set,
-                                y_test_preds_rf_set)
-    feature_importance_plot(
-        saved_rf,
-        X_test_set,
-        output_pth='images/results/feat_importances.png')
+classification_report_image(y_train_set,
+                            y_test_set,
+                            y_train_preds_lr_set,
+                            y_train_preds_rf_set,
+                            y_test_preds_lr_set,
+                            y_test_preds_rf_set)
+feature_importance_plot(
+    saved_rf,
+    X_test_set,
+    output_pth='images/results/feat_importances.png')
