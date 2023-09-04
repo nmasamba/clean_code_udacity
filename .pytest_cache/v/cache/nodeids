@@ -1,0 +1,4 @@
+[
+  "test_churn_library.py::test_import_data_shape0",
+  "test_churn_library.py::test_import_data_df"
+]
