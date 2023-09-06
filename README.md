@@ -10,13 +10,23 @@ To test the main functions in churn_library run: **churn_script_logging_and_test
 ## Files and data description
 Top level view
 ---------------
-data
-- bank_data.csv
 
 churn_library.py
+
 churn_notebook.py
+
 churn_script_logging_and_tests.py
+
 Guide.ipynb
+
+README.md
+
+requirements_py3.6.txt
+
+requirements_py3.8.txt
+
+data
+- bank_data.csv
 
 images
 - eda
@@ -38,9 +48,6 @@ models
 - logistic_model.pkl
 - rfc_model.pkl
 
-README.md
-requirements_py3.6.txt
-requirements_py3.8.txt
 
 ## Running Files
 The project was built from within an Anaconda environment. To run it in an isolated virtual environment, make sure you have Continuum's Anaconda installed and follow these steps.
