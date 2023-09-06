@@ -12,11 +12,12 @@ Top level view
 ---------------
 data
 - bank_data.csv
+
 churn_library.py
 churn_notebook.py
 churn_script_logging_and_tests.py
-data/bank_data.csv
 Guide.ipynb
+
 images
 - eda
 	- churn_hist.png
@@ -24,9 +25,19 @@ images
 	- heatmap.png
 	- marital_status_bar.png
 	- total_transactions_hist.png
-images
+- results
+	- feat_importances.png
+	- linear_reg_clf_results.png
+	- random_forest_clf_results.png
+	- roc_curve.png
+
 logs
+- churn_library.log
+
 models
+- logistic_model.pkl
+- rfc_model.pkl
+
 README.md
 requirements_py3.6.txt
 requirements_py3.8.txt
