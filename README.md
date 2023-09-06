@@ -10,13 +10,21 @@ To test the main functions in churn_library run: **churn_script_logging_and_test
 ## Files and data description
 Top level view
 ---------------
+data
+- bank_data.csv
 churn_library.py
 churn_notebook.py
 churn_script_logging_and_tests.py
 data/bank_data.csv
 Guide.ipynb
-images/eda
-images/results
+images
+- eda
+	- churn_hist.png
+	- customer_age_hist.png
+	- heatmap.png
+	- marital_status_bar.png
+	- total_transactions_hist.png
+images
 logs
 models
 README.md
