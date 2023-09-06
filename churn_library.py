@@ -256,6 +256,7 @@ def classification_report_image(y_train,
                 y_train, y_train_preds_lr)), {
             'fontsize': 10}, fontproperties='monospace')
     plt.savefig('images/results/linear_reg_clf_results.png', dpi='figure')
+    return 0
 
 
 def feature_importance_plot(model, X_data, output_pth):
@@ -273,10 +274,11 @@ def feature_importance_plot(model, X_data, output_pth):
     model = joblib.load(model)
 
     # plot feature importances
+    plt.clf()
     explainer = shap.TreeExplainer(model)
     shap_values = explainer.shap_values(X_data)
     shap.summary_plot(shap_values, X_data, plot_type="bar", show=False)
-    plt.savefig(output_pth)
+    plt.savefig(output_pth, dpi='figure')
 
 
 # end-to-end churn model
